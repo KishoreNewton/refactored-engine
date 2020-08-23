@@ -39,6 +39,11 @@ app.post('/', (req, res) => {
         } else {
             if(responseData.messages[0]['status'] === "0") {
                 console.log("Message sent successfully.");
+                const data = {
+                    id: responseData.messages[0]['message-id'],
+                    number: responseData.messages[0]['to']
+                }
+                io.emit('smsStatus', data)
             } else {
                 console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
             }
@@ -50,4 +55,12 @@ const port = 3000
 
 const server = app.listen(port, () => {
     console.log(`listening on port ${port}`)
+})
+
+const io = socketio(server)
+io.on('connection', (socket) => {
+    console.log('connected')
+    io.on('disconnect', () => {
+        console.log('disconnected')
+    })
 })
