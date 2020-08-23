@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const ejs = require('ejs')
 const Nexmo = require('nexmo')
 const socketio = require('socket.io')
+const { response } = require('express')
 
 const nexmo = new Nexmo({
     apiKey: process.env.NEXMO_MESSAGE_API_KEY,
@@ -25,8 +26,24 @@ app.get('/' , (req, res) => {
 })
 
 app.post('/', (req, res) => {
-    res.send(req.body)
-    console.log(req.body)
+    const from = 'kishore Newton'
+    const to = req.body.number
+    const text = req.body.text
+    const opts = {
+      "type": "unicode"
+    }
+    
+    nexmo.message.sendSms(from, to, text, opts, (err, responseData) => {
+        if (err) {
+            console.log(err);
+        } else {
+            if(responseData.messages[0]['status'] === "0") {
+                console.log("Message sent successfully.");
+            } else {
+                console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
+            }
+        }
+    })
 })
 
 const port = 3000
